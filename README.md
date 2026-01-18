@@ -21,11 +21,39 @@
 
 ### 2. 部署 Bot
 
-#### 方式一: Docker 部署 (推荐)
+#### 方式一: 本地运行 (使用虚拟环境)
 
 ```bash
 # 克隆/下载项目
-cd weekly_report_bot
+cd workpilot
+
+# 创建 Python 虚拟环境 (推荐使用 venv)
+python3 -m venv venv
+
+# 激活虚拟环境
+# macOS/Linux:
+source venv/bin/activate
+# Windows:
+# venv\Scripts\activate
+
+# 安装依赖
+pip install -r requirements.txt
+
+# 复制环境变量文件
+cp .env.example .env
+
+# 编辑 .env 文件，填入你的 Bot Token
+nano .env  # 或使用其他编辑器
+
+# 运行 Bot
+python main.py
+```
+
+#### 方式二: Docker 部署 (推荐)
+
+```bash
+# 克隆/下载项目
+cd workpilot
 
 # 复制环境变量文件
 cp .env.example .env
@@ -40,20 +68,7 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
-#### 方式二: 直接运行
-
-```bash
-# 安装依赖
-pip install -r requirements.txt
-
-# 设置环境变量
-export TELEGRAM_BOT_TOKEN="your_bot_token_here"
-
-# 运行
-python bot.py
-```
-
-#### 方式三: 使用 systemd (Linux 服务器)
+#### 方式四: 使用 systemd (Linux 服务器)
 
 创建服务文件 `/etc/systemd/system/weekly-report-bot.service`:
 
@@ -65,9 +80,9 @@ After=network.target
 [Service]
 Type=simple
 User=your_user
-WorkingDirectory=/path/to/weekly_report_bot
+WorkingDirectory=/path/to/workpilot
 Environment=TELEGRAM_BOT_TOKEN=your_token_here
-ExecStart=/usr/bin/python3 bot.py
+ExecStart=/usr/bin/python3 main.py
 Restart=always
 RestartSec=10
 
@@ -78,8 +93,8 @@ WantedBy=multi-user.target
 启动服务:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable weekly-report-bot
-sudo systemctl start weekly-report-bot
+sudo systemctl enable workpilot-bot
+sudo systemctl start workpilot-bot
 ```
 
 ### 3. 配置群组
@@ -206,23 +221,70 @@ data/
 
 ## 🔧 自定义开发
 
+### 项目结构
+
+```
+workpilot/
+├── src/
+│   ├── __init__.py
+│   ├── models/              # 数据模型
+│   │   ├── __init__.py
+│   │   ├── config.py       # 配置管理
+│   │   └── report.py       # 周报数据模型
+│   ├── handlers/           # Telegram 消息处理器
+│   │   ├── __init__.py
+│   │   ├── commands.py     # 命令处理器
+│   │   └── messages.py     # 消息处理器
+│   ├── services/           # 业务逻辑服务
+│   │   ├── __init__.py
+│   │   ├── bot_service.py      # Bot 核心服务
+│   │   ├── report_service.py   # 周报服务
+│   │   └── reminder_service.py # 提醒服务
+│   ├── utils/              # 工具函数
+│   │   ├── __init__.py
+│   │   ├── logger.py       # 日志配置
+│   │   └── time_utils.py   # 时间工具
+│   └── scheduler.py        # 定时任务配置
+├── data/                   # 数据目录
+│   ├── config.json        # 配置文件
+│   └── reports/           # 周报数据
+├── main.py                # 主入口文件
+├── requirements.txt       # 依赖列表
+├── .env.example          # 环境变量示例
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
+```
+
 ### 添加新功能
 
-代码结构清晰，可以方便地扩展:
+代码采用模块化设计，可以方便地扩展:
 
 ```python
-# 添加新命令
+# 1. 在 src/handlers/commands.py 添加新命令
 async def my_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """我的新命令"""
     # 你的逻辑
-    pass
+    await update.message.reply_text("Hello!")
 
-# 注册命令
+# 2. 在 main.py 注册命令
 application.add_handler(CommandHandler("mycommand", my_command))
 ```
 
 ### 修改提醒时间
 
-在 `bot.py` 中找到 `setup_scheduled_jobs` 函数，修改定时任务配置。
+在 `src/scheduler.py` 中修改定时任务配置:
+
+```python
+# 修改提醒时间和星期
+reminder_time = time(hour=9, minute=0)  # UTC 时间
+job_queue.run_daily(
+    scheduled_reminder,
+    time=reminder_time,
+    days=(4,),  # 0=周一, 4=周五
+    name="friday_reminder"
+)
+```
 
 ## 🐛 常见问题
 
@@ -237,6 +299,8 @@ application.add_handler(CommandHandler("mycommand", my_command))
 
 **Q: 如何查看历史周报?**
 - 使用 `/export 2024-W01` 导出指定周的周报
+
+更多详细文档请查看 [docs/](docs/) 目录。
 
 ## 📄 License
 

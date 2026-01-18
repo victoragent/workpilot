@@ -51,6 +51,11 @@ logs/
 *.sqlite
 *.sqlite3
 
+# WorkPilot data (keep structure but ignore content)
+data/config.json
+data/reports/*.json
+data/reports/*/exports/*.md
+
 # Claude Code specific
 .claude/
 

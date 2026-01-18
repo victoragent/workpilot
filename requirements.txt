@@ -1,2 +1,8 @@
+# WorkPilot Telegram Bot - 依赖包列表
+# Python 版本要求: >= 3.9
+
+# Telegram Bot 框架 (包含任务队列支持)
 python-telegram-bot[job-queue]==20.7
+
+# 环境变量管理
 python-dotenv==1.0.0
