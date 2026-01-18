@@ -5,9 +5,9 @@ from pathlib import Path
 
 from telegram.constants import ParseMode
 
-from .bot_service import BotService
-from ..utils.logger import setup_logger
-from ..utils.time_utils import get_current_week
+from src.services.bot_service import BotService
+from src.utils.logger import setup_logger
+from src.utils.time_utils import get_current_week
 
 
 logger = setup_logger(__name__)

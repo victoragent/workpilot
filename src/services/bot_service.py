@@ -3,10 +3,10 @@
 import logging
 from typing import Dict
 
-from ..models.config import Config
-from ..models.report import WeeklyReport
-from ..utils.logger import setup_logger
-from ..utils.time_utils import get_current_week
+from src.models.config import Config
+from src.models.report import WeeklyReport
+from src.utils.logger import setup_logger
+from src.utils.time_utils import get_current_week
 
 
 logger = setup_logger(__name__)

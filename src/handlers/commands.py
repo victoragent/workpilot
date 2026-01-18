@@ -7,11 +7,11 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from telegram.constants import ParseMode
 
-from ..services.bot_service import BotService
-from ..services.report_service import ReportService
-from ..services.reminder_service import ReminderService
-from ..utils.logger import setup_logger
-from ..utils.time_utils import get_current_week
+from src.services.bot_service import BotService
+from src.services.report_service import ReportService
+from src.services.reminder_service import ReminderService
+from src.utils.logger import setup_logger
+from src.utils.time_utils import get_current_week
 
 
 logger = setup_logger(__name__)

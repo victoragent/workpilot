@@ -37,7 +37,7 @@ def main():
     print("2. 配置文件:")
     all_ok &= check_file_exists("requirements.txt", "依赖列表")
     all_ok &= check_file_exists("README.md", "项目说明")
-    all_ok &= check_file_exists("INSTALL.md", "安装指南")
+    all_ok &= check_file_exists("docs/INSTALL.md", "安装指南")
     print()
 
     # 检查源代码结构
@@ -89,7 +89,7 @@ def main():
         print("下一步:")
         print("  1. 运行安装脚本: bash install.sh (Linux/macOS)")
         print("  2. 或运行: .\\install.ps1 (Windows)")
-        print("  3. 或查看 INSTALL.md 手动安装")
+        print("  3. 或查看 docs/INSTALL.md 手动安装")
     else:
         print("✗ 部分文件缺失，请检查项目结构。")
         sys.exit(1)

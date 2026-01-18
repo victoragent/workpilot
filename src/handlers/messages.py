@@ -5,9 +5,9 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from ..services.bot_service import BotService
-from ..services.report_service import ReportService
-from ..utils.logger import setup_logger
+from src.services.bot_service import BotService
+from src.services.report_service import ReportService
+from src.utils.logger import setup_logger
 
 
 logger = setup_logger(__name__)

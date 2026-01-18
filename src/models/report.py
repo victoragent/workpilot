@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from ..utils.time_utils import get_current_week
+from src.utils.time_utils import get_current_week
 
 
 class WeeklyReport:

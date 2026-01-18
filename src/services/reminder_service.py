@@ -6,8 +6,8 @@ from typing import List
 from telegram import Bot
 from telegram.constants import ParseMode
 
-from .bot_service import BotService
-from ..utils.logger import setup_logger
+from src.services.bot_service import BotService
+from src.utils.logger import setup_logger
 
 
 logger = setup_logger(__name__)

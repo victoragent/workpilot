@@ -5,8 +5,8 @@ from datetime import time
 
 from telegram.ext import Application
 
-from ..handlers.messages import scheduled_reminder
-from ..utils.logger import setup_logger
+from src.handlers.messages import scheduled_reminder
+from src.utils.logger import setup_logger
 
 
 logger = setup_logger(__name__)
