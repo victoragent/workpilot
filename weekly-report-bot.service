@@ -1,0 +1,17 @@
+[Unit]
+Description=Telegram Weekly Report Bot
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/weekly_report_bot
+Environment=TELEGRAM_BOT_TOKEN=your_token_here
+ExecStart=/usr/bin/python3 bot.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/weekly-report-bot.log
+StandardError=append:/var/log/weekly-report-bot.log
+
+[Install]
+WantedBy=multi-user.target
