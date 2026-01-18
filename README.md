@@ -49,7 +49,33 @@ nano .env  # 或使用其他编辑器
 python main.py
 ```
 
-#### 方式二: Docker 部署 (推荐)
+#### 方式二: 后台运行 (使用启动脚本)
+
+```bash
+# 安装依赖
+bash install.sh
+
+# 配置 .env 文件
+cp .env.example .env
+nano .env
+
+# 后台启动 Bot
+./start.sh
+
+# 查看状态
+./status.sh
+
+# 查看日志
+tail -f logs/workpilot.log
+
+# 停止 Bot
+./stop.sh
+
+# 重启 Bot
+./restart.sh
+```
+
+#### 方式三: Docker 部署
 
 ```bash
 # 克隆/下载项目
@@ -68,33 +94,27 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
-#### 方式四: 使用 systemd (Linux 服务器)
+#### 方式四: systemd 服务 (Linux 服务器生产环境)
 
-创建服务文件 `/etc/systemd/system/weekly-report-bot.service`:
+详细的部署指南请查看: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
-```ini
-[Unit]
-Description=Telegram Weekly Report Bot
-After=network.target
+快速配置:
 
-[Service]
-Type=simple
-User=your_user
-WorkingDirectory=/path/to/workpilot
-Environment=TELEGRAM_BOT_TOKEN=your_token_here
-ExecStart=/usr/bin/python3 main.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-启动服务:
 ```bash
+# 复制服务文件模板
+cp workpilot.service /tmp/workpilot.service
+
+# 编辑服务文件，修改路径和用户名
+nano /tmp/workpilot.service
+
+# 安装服务
+sudo cp /tmp/workpilot.service /etc/systemd/system/workpilot.service
 sudo systemctl daemon-reload
-sudo systemctl enable workpilot-bot
-sudo systemctl start workpilot-bot
+sudo systemctl enable workpilot
+sudo systemctl start workpilot
+
+# 查看状态
+sudo systemctl status workpilot
 ```
 
 ### 3. 配置群组

@@ -1,0 +1,19 @@
+[Unit]
+Description=WorkPilot Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=your_username
+Group=your_username
+WorkingDirectory=/path/to/workpilot
+Environment="PATH=/path/to/workpilot/venv/bin"
+EnvironmentFile=-/path/to/workpilot/.env
+ExecStart=/path/to/workpilot/venv/bin/python main.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/path/to/workpilot/logs/workpilot.log
+StandardError=append:/path/to/workpilot/logs/workpilot.log
+
+[Install]
+WantedBy=multi-user.target
