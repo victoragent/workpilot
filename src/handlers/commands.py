@@ -153,8 +153,10 @@ async def sync_members(update: Update, context: ContextTypes.DEFAULT_TYPE):
         bot_service.sync_members_from_group(chat.id, members_dict)
 
         await update.message.reply_text(
-            f"✅ 已同步 {len(members_dict)} 位成员\n"
-            f"他们现在需要提交周报了！"
+            f"✅ 已同步 {len(members_dict)} 位管理员\n\n"
+            f"💡 说明:\n"
+            f"由于 Telegram API 限制，Bot 只能获取管理员列表\n"
+            f"普通成员请使用 /register 手动注册"
         )
     except Exception as e:
         logger.error(f"同步成员失败: {e}")
