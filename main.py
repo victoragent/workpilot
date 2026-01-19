@@ -33,6 +33,7 @@ from src.handlers.commands import (
     list_members,
 )
 from src.handlers.messages import handle_message
+from src.handlers.menu_setup import setup_menu_commands
 from src.scheduler import setup_scheduled_jobs
 from src.utils.logger import setup_logger
 
@@ -76,6 +77,13 @@ def main():
 
     # 设置定时任务
     setup_scheduled_jobs(application)
+
+    # 设置菜单命令
+    async def post_init(application) -> None:
+        """应用初始化后的回调"""
+        await setup_menu_commands(application)
+
+    application.post_init = post_init
 
     # 启动 Bot
     logger.info("Bot 启动中...")
