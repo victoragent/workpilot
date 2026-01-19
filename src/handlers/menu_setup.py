@@ -1,7 +1,7 @@
 """Bot menu button setup"""
 
 import logging
-from telegram import BotCommand, MenuButtonCommands
+from telegram import BotCommand
 from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -31,13 +31,8 @@ async def setup_menu_commands(application):
         await application.bot.set_my_commands(commands)
         logger.info("✅ Bot 命令列表已设置")
 
-        # 设置菜单按钮为命令类型
-        menu_button = MenuButtonCommands()
-        await application.bot.set_chat_menu_button(menu_button)
-        logger.info("✅ 菜单按钮已设置为命令类型")
-
     except Exception as e:
-        logger.error(f"❌ 设置菜单命令失败: {e}")
+        logger.error(f"❌ 设置命令列表失败: {e}")
 
 
 def get_menu_commands_description():
