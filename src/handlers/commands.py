@@ -29,20 +29,52 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
     if chat.type in ['group', 'supergroup']:
+        # 注册群组
         bot_service.register_group(chat.id, chat.title)
-        await update.message.reply_text(
-            f"👋 你好！我是周报收集助手\n\n"
-            f"已注册群组: {chat.title}\n\n"
-            f"**可用命令:**\n"
-            f"/register - 注册为需要提交周报的成员\n"
-            f"/unregister - 取消注册\n"
-            f"/submit - 提交周报 (或直接发送包含「周报」的消息)\n"
-            f"/status - 查看本周周报提交状态\n"
-            f"/summary - 查看本周周报汇总\n"
-            f"/remind - 手动触发提醒\n"
-            f"/export - 导出周报为文件\n"
-            f"/help - 查看帮助"
-        )
+
+        # 尝试获取群组成员列表
+        try:
+            # 获取群组成员（需要 Bot 是管理员）
+            members = await context.bot.get_chat_administrators(chat.id)
+
+            # 构建成员字典
+            members_dict = {}
+            for member in members:
+                # 跳过 Bot 自己
+                if member.user.id == context.bot.id:
+                    continue
+                # 包含所有管理员
+                if member.user.full_name or member.user.username:
+                    members_dict[member.user.id] = member.user.full_name or member.user.username
+
+            # 如果成功获取了管理员，保存到配置
+            if members_dict:
+                bot_service.sync_members_from_group(chat.id, members_dict)
+                member_count = len(members_dict)
+        except Exception as e:
+            logger.warning(f"无法获取群 {chat.id} 的成员列表: {e}")
+            member_count = 0
+
+        # 发送欢迎消息
+        help_text = f"👋 你好！我是周报收集助手\n\n"
+        help_text += f"已注册群组: {chat.title}\n\n"
+
+        if member_count > 0:
+            help_text += f"✅ 已自动添加 {member_count} 位管理员到周报名单\n\n"
+        else:
+            help_text += f"⚠️ 未获取到成员列表，请确保 Bot 是群管理员\n"
+            help_text += f"或手动使用 /register 注册\n\n"
+
+        help_text += f"**可用命令:**\n"
+        help_text += f"/sync - 同步群组成员列表\n"
+        help_text += f"/submit - 提交周报 (或直接发送包含「周报」的消息)\n"
+        help_text += f"/status - 查看本周周报提交状态\n"
+        help_text += f"/summary - 查看本周周报汇总\n"
+        help_text += f"/remind - 手动触发提醒\n"
+        help_text += f"/export - 导出周报为文件\n"
+        help_text += f"/help - 查看帮助"
+
+        await update.message.reply_text(help_text, parse_mode=ParseMode.MARKDOWN)
     else:
         await update.message.reply_text(
             "请将我添加到工作群中使用！\n"
@@ -56,11 +88,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 📖 **周报收集 Bot 使用指南**
 
 **成员命令:**
-• `/register` - 注册为需要提交周报的成员
-• `/unregister` - 取消注册
+• `/sync` - 同步群组成员列表（需要 Bot 是管理员）
+• `/unregister` - 取消注册（不需要提交周报）
 • `/submit` - 提交周报
 • `/status` - 查看提交状态
-• `/mystatus` - 查看个人提交状态
 
 **管理命令:**
 • `/summary` - 查看周报汇总
@@ -88,12 +119,53 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #周报
 本周完成: ...
 ```
+
+**说明:**
+- Bot 会自动同步群组成员，无需手动注册
+- 如需退出周报名单，使用 `/unregister`
 """
     await update.message.reply_text(help_text, parse_mode=ParseMode.MARKDOWN)
 
 
+async def sync_members(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """同步群组成员"""
+    chat = update.effective_chat
+
+    if chat.type not in ['group', 'supergroup']:
+        await update.message.reply_text("请在群组中使用此命令")
+        return
+
+    try:
+        # 获取群组成员（需要 Bot 是管理员）
+        members = await context.bot.get_chat_administrators(chat.id)
+
+        # 构建成员字典
+        members_dict = {}
+        for member in members:
+            # 跳过 Bot 自己
+            if member.user.id == context.bot.id:
+                continue
+            # 包含所有管理员
+            if member.user.full_name or member.user.username:
+                members_dict[member.user.id] = member.user.full_name or member.user.username
+
+        # 保存到配置
+        bot_service.sync_members_from_group(chat.id, members_dict)
+
+        await update.message.reply_text(
+            f"✅ 已同步 {len(members_dict)} 位成员\n"
+            f"他们现在需要提交周报了！"
+        )
+    except Exception as e:
+        logger.error(f"同步成员失败: {e}")
+        await update.message.reply_text(
+            f"❌ 同步失败: {str(e)}\n\n"
+            f"请确保 Bot 是群管理员"
+        )
+
+
 async def register_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """注册成员"""
+    """注册成员（保留用于兼容）"""
     chat = update.effective_chat
     user = update.effective_user
 

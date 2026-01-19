@@ -80,18 +80,46 @@ class BotService:
             logger.info(f"用户 {username} ({user_id}) 在群 {group_id} 提交了周报")
         return success
 
-    def get_pending_members(self, group_id: int) -> list:
+    def get_pending_members(self, group_id: int, all_members: dict = None) -> list:
         """获取未提交成员
 
         Args:
             group_id: 群组ID
+            all_members: 所有成员字典 {user_id: username}，如果为 None 则从配置读取
 
         Returns:
             未提交成员列表
         """
-        group_config = self.config.get_group(group_id) or {}
-        members = group_config.get("members", {})
-        return self.report_manager.get_pending_members(group_id, members)
+        if all_members is None:
+            group_config = self.config.get_group(group_id) or {}
+            all_members = group_config.get("members", {})
+
+        return self.report_manager.get_pending_members(group_id, all_members)
+
+    def sync_members_from_group(self, group_id: int, members_dict: dict):
+        """从群组同步成员列表
+
+        Args:
+            group_id: 群组ID
+            members_dict: 成员字典 {user_id: username}
+        """
+        group_id_str = str(group_id)
+        if group_id_str not in self.config.data["groups"]:
+            self.config.data["groups"][group_id_str] = {
+                "name": "Unknown Group",
+                "members": {}
+            }
+
+        # 更新成员列表（保留已有的成员信息）
+        current_members = self.config.data["groups"][group_id_str].get("members", {})
+        for user_id, username in members_dict.items():
+            # 只添加新成员或更新用户名
+            if str(user_id) not in current_members or current_members[str(user_id)] != username:
+                current_members[str(user_id)] = username
+
+        self.config.data["groups"][group_id_str]["members"] = current_members
+        self.config.save()
+        logger.info(f"同步群 {group_id} 成员列表，共 {len(members_dict)} 人")
 
     def get_group_members(self, group_id: int) -> Dict[str, str]:
         """获取群组成员

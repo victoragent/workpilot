@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from src.handlers.commands import (
     start,
     help_command,
+    sync_members,
     register_member,
     unregister_member,
     submit_report,
@@ -57,6 +58,7 @@ def main():
     # 添加命令处理器
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("sync", sync_members))
     application.add_handler(CommandHandler("register", register_member))
     application.add_handler(CommandHandler("unregister", unregister_member))
     application.add_handler(CommandHandler("submit", submit_report))
