@@ -1,0 +1,18 @@
+{
+  "groups": {},
+  "admin_users": [],
+  "excluded_users": {
+    "123456789": "示例用户1",
+    "987654321": "示例用户2"
+  },
+  "reminder_day": 5,
+  "reminder_hour": 17,
+  "deadline_day": 0,
+  "deadline_hour": 10,
+  "report_keywords": [
+    "周报",
+    "#周报",
+    "本周工作",
+    "weekly report"
+  ]
+}
