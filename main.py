@@ -19,6 +19,19 @@ from telegram.ext import (
 # 添加 src 目录到 Python 路径
 sys.path.insert(0, str(Path(__file__).parent))
 
+# 加载 .env 文件
+try:
+    from dotenv import load_dotenv
+    # 尝试加载 .env 文件
+    env_file = Path(__file__).parent / ".env"
+    if env_file.exists():
+        load_dotenv(env_file)
+        print(f"✅ 已加载环境变量文件: {env_file}")
+    else:
+        print("⚠️  .env 文件不存在，将使用系统环境变量")
+except ImportError:
+    print("⚠️  python-dotenv 未安装，将使用系统环境变量")
+
 from src.handlers.commands import (
     start,
     help_command,
