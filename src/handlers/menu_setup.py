@@ -18,13 +18,16 @@ async def setup_menu_commands(application):
         commands = [
             BotCommand("start", "🚀 开始使用"),
             BotCommand("help", "📖 查看帮助"),
-            BotCommand("sync", "🔄 同步群组成员"),
+            BotCommand("sync", "🔄 同步成员"),
             BotCommand("submit", "✍️ 提交周报"),
-            BotCommand("status", "📊 查看提交状态"),
-            BotCommand("summary", "📑 查看周报汇总"),
+            BotCommand("status", "📊 查看状态"),
+            BotCommand("summary", "📑 查看汇总"),
             BotCommand("remind", "⏰ 发送提醒"),
             BotCommand("export", "📤 导出周报"),
-            BotCommand("members", "👥 查看成员列表"),
+            BotCommand("members", "👥 成员列表"),
+            BotCommand("exclude", "🚫 排除用户"),
+            BotCommand("include", "✅ 恢复用户"),
+            BotCommand("excluded", "📋 排除列表"),
         ]
 
         # 设置命令列表（所有聊天）
@@ -51,4 +54,7 @@ def get_menu_commands_description():
         "remind": "手动提醒未提交成员",
         "export": "导出周报为 Markdown 文件",
         "members": "查看已注册成员列表",
+        "exclude": "排除用户（不需要提交周报）",
+        "include": "恢复用户（需要提交周报）",
+        "excluded": "查看排除列表",
     }

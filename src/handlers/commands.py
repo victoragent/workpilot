@@ -303,3 +303,70 @@ async def list_members(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = report_service.get_members_text(chat.id)
     await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+
+
+async def exclude_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """排除用户（不需要提交周报）"""
+    chat = update.effective_chat
+    user = update.effective_user
+
+    # 只有回复消息时才能获取到要排除的用户
+    if not update.message.reply_to_message or not update.message.reply_to_message.from_user:
+        await update.message.reply_text(
+            "请回复要排除的用户消息，然后使用此命令\n"
+            "例如: 用户发送消息后，你回复该消息并发送 /exclude"
+        )
+        return
+
+    target_user = update.message.reply_to_message.from_user
+
+    # 添加到排除列表
+    bot_service.config.add_excluded_user(target_user.id, target_user.full_name or target_user.username)
+
+    # 从当前群组成员中移除
+    bot_service.config.remove_member(chat.id, target_user.id)
+
+    await update.message.reply_text(
+        f"✅ {target_user.full_name} 已添加到排除列表\n"
+        f"他们不再需要提交周报了"
+    )
+
+
+async def include_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """从排除列表移除用户（恢复需要提交周报）"""
+    chat = update.effective_chat
+    user = update.effective_user
+
+    # 只有回复消息时才能获取到要恢复的用户
+    if not update.message.reply_to_message or not update.message.reply_to_message.from_user:
+        await update.message.reply_text(
+            "请回复要恢复的用户消息，然后使用此命令\n"
+            "例如: 用户发送消息后，你回复该消息并发送 /include"
+        )
+        return
+
+    target_user = update.message.reply_to_message.from_user
+
+    # 从排除列表移除
+    bot_service.config.remove_excluded_user(target_user.id)
+
+    await update.message.reply_text(
+        f"✅ {target_user.full_name} 已从排除列表移除\n"
+        f"他们现在需要提交周报了"
+    )
+
+
+async def list_excluded(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """查看排除列表"""
+    excluded_users = bot_service.config.get_excluded_users()
+
+    if not excluded_users:
+        await update.message.reply_text("📋 排除列表为空，所有人都需要提交周报")
+        return
+
+    text = f"📋 **排除列表** ({len(excluded_users)}人)\n\n"
+    text += "以下用户不需要提交周报:\n"
+    for user_id, username in excluded_users.items():
+        text += f"• {username} (ID: {user_id})\n"
+
+    await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)

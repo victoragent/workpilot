@@ -44,6 +44,9 @@ from src.handlers.commands import (
     send_reminder,
     export_report,
     list_members,
+    exclude_user,
+    include_user,
+    list_excluded,
 )
 from src.handlers.messages import handle_message
 from src.handlers.menu_setup import setup_menu_commands
@@ -81,6 +84,9 @@ def main():
     application.add_handler(CommandHandler("remind", send_reminder))
     application.add_handler(CommandHandler("export", export_report))
     application.add_handler(CommandHandler("members", list_members))
+    application.add_handler(CommandHandler("exclude", exclude_user))
+    application.add_handler(CommandHandler("include", include_user))
+    application.add_handler(CommandHandler("excluded", list_excluded))
 
     # 添加消息处理器（检测周报关键词）
     application.add_handler(MessageHandler(

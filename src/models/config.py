@@ -37,6 +37,7 @@ class Config:
         return {
             "groups": {},  # group_id: {"name": str, "members": {user_id: username}}
             "admin_users": [],  # 管理员用户ID列表
+            "excluded_users": {},  # 全局排除用户 {user_id: username} - 不需要提交周报的人
             "reminder_day": 5,  # 周五提醒 (0=周一, 6=周日)
             "reminder_hour": 17,  # 下午5点提醒
             "deadline_day": 0,  # 周一截止
@@ -118,3 +119,45 @@ class Config:
             关键词列表
         """
         return self.data.get("report_keywords", ["周报", "#周报"])
+
+    def add_excluded_user(self, user_id: int, username: str):
+        """添加到全局排除列表
+
+        Args:
+            user_id: 用户ID
+            username: 用户名
+        """
+        self.data["excluded_users"][str(user_id)] = username
+        self.save()
+        logger.info(f"添加用户 {username} ({user_id}) 到排除列表")
+
+    def remove_excluded_user(self, user_id: int):
+        """从全局排除列表移除
+
+        Args:
+            user_id: 用户ID
+        """
+        user_id_str = str(user_id)
+        if user_id_str in self.data["excluded_users"]:
+            del self.data["excluded_users"][user_id_str]
+            self.save()
+            logger.info(f"从排除列表移除用户 {user_id}")
+
+    def is_user_excluded(self, user_id: int) -> bool:
+        """检查用户是否在排除列表中
+
+        Args:
+            user_id: 用户ID
+
+        Returns:
+            是否被排除
+        """
+        return str(user_id) in self.data.get("excluded_users", {})
+
+    def get_excluded_users(self) -> Dict[str, str]:
+        """获取所有排除用户
+
+        Returns:
+            排除用户字典 {user_id: username}
+        """
+        return self.data.get("excluded_users", {})

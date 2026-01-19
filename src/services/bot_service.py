@@ -81,7 +81,7 @@ class BotService:
         return success
 
     def get_pending_members(self, group_id: int, all_members: dict = None) -> list:
-        """获取未提交成员
+        """获取未提交成员（排除在排除列表中的人）
 
         Args:
             group_id: 群组ID
@@ -94,7 +94,13 @@ class BotService:
             group_config = self.config.get_group(group_id) or {}
             all_members = group_config.get("members", {})
 
-        return self.report_manager.get_pending_members(group_id, all_members)
+        # 过滤掉排除列表中的用户
+        filtered_members = {}
+        for user_id, username in all_members.items():
+            if not self.config.is_user_excluded(int(user_id)):
+                filtered_members[user_id] = username
+
+        return self.report_manager.get_pending_members(group_id, filtered_members)
 
     def sync_members_from_group(self, group_id: int, members_dict: dict):
         """从群组同步成员列表
@@ -114,12 +120,17 @@ class BotService:
         current_members = self.config.data["groups"][group_id_str].get("members", {})
         for user_id, username in members_dict.items():
             # 只添加新成员或更新用户名
-            if str(user_id) not in current_members or current_members[str(user_id)] != username:
-                current_members[str(user_id)] = username
+            # 但跳过排除列表中的用户
+            if not self.config.is_user_excluded(int(user_id)):
+                if str(user_id) not in current_members or current_members[str(user_id)] != username:
+                    current_members[str(user_id)] = username
 
         self.config.data["groups"][group_id_str]["members"] = current_members
         self.config.save()
-        logger.info(f"同步群 {group_id} 成员列表，共 {len(members_dict)} 人")
+
+        # 统计有效成员（排除被排除的）
+        excluded_count = sum(1 for uid in members_dict.keys() if self.config.is_user_excluded(int(uid)))
+        logger.info(f"同步群 {group_id} 成员列表，共 {len(members_dict)} 人（排除 {excluded_count} 人）")
 
     def get_group_members(self, group_id: int) -> Dict[str, str]:
         """获取群组成员
